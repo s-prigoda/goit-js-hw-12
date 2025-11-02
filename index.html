@@ -10,13 +10,15 @@
     <link rel="stylesheet" crossorigin href="/goit-js-hw-12/assets/index-0aH-Avwm.css">
   </head>
   <body>
-    <form class="search-form">
-      <input
-        type="text"
-        name="searchQuery"
-        placeholder="Search images..."
-        required
-      />
+    <form class="form">
+      <label>
+        <input
+          type="text"
+          name="search-text"
+          placeholder="Search images..."
+          required
+        />
+      </label>
       <button type="submit">Search</button>
     </form>
 
@@ -24,7 +26,7 @@
 
     <button class="load-more hidden">Load more</button>
 
-    <div class="loader"></div>
+    <span class="loader"></span>
 
   </body>
 </html>
