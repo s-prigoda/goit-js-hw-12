@@ -1,3 +1,7 @@
+import './css/styles.css';
+import 'simplelightbox/dist/simple-lightbox.min.css';
+import 'izitoast/dist/css/iziToast.min.css';
+
 import { getImagesByQuery } from './js/pixabay-api.js';
 import {
   createGallery,
@@ -7,11 +11,10 @@ import {
   showLoadMoreButton,
   hideLoadMoreButton,
 } from './js/render-functions.js';
-import iziToast from 'izitoast';
-import 'izitoast/dist/css/iziToast.min.css';
-import './css/styles.css';
 
-const form = document.querySelector('.search-form');
+import iziToast from 'izitoast';
+
+const form = document.querySelector('.form');
 const loadMoreBtn = document.querySelector('.load-more');
 
 let query = '';
@@ -21,7 +24,7 @@ let totalHits = 0;
 
 form.addEventListener('submit', async e => {
   e.preventDefault();
-  query = form.elements.searchQuery.value.trim();
+  query = form.elements['search-text'].value.trim();
   if (!query) return;
 
   page = 1;
@@ -34,10 +37,7 @@ form.addEventListener('submit', async e => {
     totalHits = data.totalHits;
 
     if (data.hits.length === 0) {
-      iziToast.info({
-        title: 'No results',
-        message: 'No images found.',
-      });
+      iziToast.info({ title: 'No results', message: 'No images found.' });
       hideLoader();
       return;
     }
@@ -48,10 +48,7 @@ form.addEventListener('submit', async e => {
     if (totalHits > perPage) showLoadMoreButton();
   } catch (error) {
     hideLoader();
-    iziToast.error({
-      title: 'Error',
-      message: 'Something went wrong!',
-    });
+    iziToast.error({ title: 'Error', message: 'Something went wrong!' });
   }
 });
 
@@ -73,16 +70,12 @@ loadMoreBtn.addEventListener('click', async () => {
       });
     }
 
-    const firstCard = document.querySelector('.gallery').firstElementChild;
-    if (firstCard) {
-      const { height: cardHeight } = firstCard.getBoundingClientRect();
-      window.scrollBy({ top: cardHeight * 2, behavior: 'smooth' });
-    }
+    const { height: cardHeight } = document
+      .querySelector('.gallery')
+      .firstElementChild.getBoundingClientRect();
+    window.scrollBy({ top: cardHeight * 2, behavior: 'smooth' });
   } catch (error) {
     hideLoader();
-    iziToast.error({
-      title: 'Error',
-      message: 'Something went wrong!',
-    });
+    iziToast.error({ title: 'Error', message: 'Something went wrong!' });
   }
 });
