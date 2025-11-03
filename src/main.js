@@ -1,6 +1,9 @@
-import './css/styles.css';
+import axios from 'axios';
+import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
+import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
+import './css/styles.css';
 
 import { getImagesByQuery } from './js/pixabay-api.js';
 import {
@@ -12,9 +15,7 @@ import {
   hideLoadMoreButton,
 } from './js/render-functions.js';
 
-import iziToast from 'izitoast';
-
-const form = document.querySelector('.form');
+const form = document.querySelector('.search-form');
 const loadMoreBtn = document.querySelector('.load-more');
 
 let query = '';
@@ -24,8 +25,15 @@ let totalHits = 0;
 
 form.addEventListener('submit', async e => {
   e.preventDefault();
-  query = form.elements['search-text'].value.trim();
-  if (!query) return;
+  query = form.elements.searchQuery.value.trim();
+
+  if (!query) {
+    iziToast.warning({
+      title: 'Warning',
+      message: 'Please enter a search term.',
+    });
+    return;
+  }
 
   page = 1;
   clearGallery();
@@ -37,7 +45,10 @@ form.addEventListener('submit', async e => {
     totalHits = data.totalHits;
 
     if (data.hits.length === 0) {
-      iziToast.info({ title: 'No results', message: 'No images found.' });
+      iziToast.info({
+        title: 'No results',
+        message: 'No images found.',
+      });
       hideLoader();
       return;
     }
@@ -45,15 +56,28 @@ form.addEventListener('submit', async e => {
     createGallery(data.hits);
     hideLoader();
 
-    if (totalHits > perPage) showLoadMoreButton();
+    const totalPages = Math.ceil(totalHits / perPage);
+
+    if (totalPages > 1) {
+      showLoadMoreButton();
+    } else {
+      iziToast.info({
+        title: 'End',
+        message: "We're sorry, but you've reached the end of search results.",
+      });
+    }
   } catch (error) {
     hideLoader();
-    iziToast.error({ title: 'Error', message: 'Something went wrong!' });
+    iziToast.error({
+      title: 'Error',
+      message: 'Something went wrong!',
+    });
   }
 });
 
 loadMoreBtn.addEventListener('click', async () => {
   page += 1;
+  hideLoadMoreButton();
   showLoader();
 
   try {
@@ -62,8 +86,10 @@ loadMoreBtn.addEventListener('click', async () => {
     hideLoader();
 
     const totalPages = Math.ceil(totalHits / perPage);
-    if (page >= totalPages) {
-      hideLoadMoreButton();
+
+    if (page < totalPages) {
+      showLoadMoreButton();
+    } else {
       iziToast.info({
         title: 'End',
         message: "We're sorry, but you've reached the end of search results.",
@@ -76,6 +102,9 @@ loadMoreBtn.addEventListener('click', async () => {
     window.scrollBy({ top: cardHeight * 2, behavior: 'smooth' });
   } catch (error) {
     hideLoader();
-    iziToast.error({ title: 'Error', message: 'Something went wrong!' });
+    iziToast.error({
+      title: 'Error',
+      message: 'Something went wrong!',
+    });
   }
 });
